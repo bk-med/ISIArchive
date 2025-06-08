@@ -1,0 +1,18 @@
+# Ce fichier permet de maintenir la structure du dossier uploads dans Git
+# Les fichiers uploadés sont ignorés par .gitignore mais la structure est préservée
+
+# Structure des uploads:
+# uploads/
+# ├── documents/
+# │   ├── {niveau}/
+# │   │   ├── {filiere}/
+# │   │   │   ├── {semestre}/
+# │   │   │   │   ├── {matiere}/
+# │   │   │   │   │   ├── cours/
+# │   │   │   │   │   ├── td/
+# │   │   │   │   │   ├── tp/
+# │   │   │   │   │   ├── examens/
+# │   │   │   │   │   └── corrections/
+# │   │   │   │   └── pfe/ (semestres terminaux uniquement)
+# ├── temp/
+# └── sauvegardes/ 

@@ -1,0 +1,221 @@
+services:
+  # Environment Setup Service - Replaces start.sh functionality
+  setup:
+    image: alpine:latest
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '🎓 ISI Archive - Configuration automatique' &&
+        echo '=============================================' &&
+        if [ ! -f .env ]; then
+          echo '📝 Création du fichier .env...' &&
+          cp .env.example .env &&
+          echo '✅ Fichier .env créé à partir de .env.example' &&
+          echo '💡 Vous pouvez modifier .env pour personnaliser la configuration'
+        else
+          echo '✅ Fichier .env trouvé'
+        fi &&
+        echo '✅ Configuration terminée'
+      "
+    restart: "no"
+
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=isi_archive
+      - POSTGRES_USER=isi_user
+      - POSTGRES_PASSWORD=isi_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - isi-archive-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U isi_user -d isi_archive"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - isi-archive-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Database Migration and Seeding Service
+  db-setup:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - DATABASE_URL=postgresql://isi_user:isi_password@database:5432/isi_archive
+      - NODE_ENV=development
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - isi-archive-network
+    user: root
+    command: >
+      sh -c "
+        echo '🗄️  Configuration de la base de données...' &&
+        echo 'Attente de la base de données...' &&
+        sleep 5 &&
+        echo 'Configuration du schéma de base de données...' &&
+        npx prisma db push &&
+        echo 'Génération du client Prisma...' &&
+        npx prisma generate &&
+        echo 'Initialisation des données...' &&
+        npm run db:seed &&
+        echo '✅ Base de données configurée avec succès!'
+      "
+    restart: "no"
+
+  # Backend Node.js Application
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=development
+      - PORT=5001
+      - DATABASE_URL=postgresql://isi_user:isi_password@database:5432/isi_archive
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-in-production
+      - UPLOAD_PATH=/app/uploads
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=465
+      - SMTP_SERVICE=gmail
+      - SMTP_MAIL=morosidibe887@gmail.com
+      - SMTP_PASSWORD=xarx goak kfcr ezlr
+      - DASHBOARD_URL=http://localhost:3000
+    depends_on:
+      db-setup:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - uploads-data:/app/uploads
+    networks:
+      - isi-archive-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend React Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5001/api
+      - REACT_APP_ENVIRONMENT=development
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - isi-archive-network
+    restart: unless-stopped
+
+  # Adminer for Database Management (Development only)
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - isi-archive-network
+    restart: unless-stopped
+
+  # Welcome Message Service - Shows startup information
+  welcome:
+    image: alpine:latest
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
+      adminer:
+        condition: service_started
+    command: >
+      sh -c "
+        echo '' &&
+        echo '🎉 ISI Archive est maintenant opérationnel !' &&
+        echo '=============================================' &&
+        echo '' &&
+        echo '📱 Accès à l application:' &&
+        echo '   🌐 Frontend:     http://localhost:3000' &&
+        echo '   🔧 Backend API:  http://localhost:5001' &&
+        echo '   🗄️  Adminer DB:  http://localhost:8080' &&
+        echo '' &&
+        echo '👤 Comptes de test créés:' &&
+        echo '   👑 Admin:      admin@isi.tn / admin123' &&
+        echo '   👨‍🏫 Professeur: prof@isi.tn / prof123' &&
+        echo '   👨‍🎓 Étudiant:   etudiant@isi.tn / etudiant123' &&
+        echo '' &&
+        echo '📋 Commandes utiles:' &&
+        echo '   docker-compose logs -f          # Voir tous les logs' &&
+        echo '   docker-compose logs -f backend  # Logs du backend uniquement' &&
+        echo '   docker-compose down             # Arrêter l application' &&
+        echo '   docker-compose ps               # Voir le statut des services' &&
+        echo '' &&
+        echo '🚀 Ouvrez http://localhost:3000 dans votre navigateur pour commencer !' &&
+        echo '' &&
+        echo '✨ L application continue de fonctionner en arrière-plan...' &&
+        sleep 5
+      "
+    restart: "no"
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  uploads-data:
+    driver: local
+
+networks:
+  isi-archive-network:
+    driver: bridge

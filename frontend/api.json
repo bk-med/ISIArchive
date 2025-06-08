@@ -1,0 +1,2509 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "ISI Archive API",
+      "version": "1.0.0",
+      "description": "API pour la plateforme de gestion de documents académiques ISI Tunis",
+      "contact": {
+        "name": "ISI Archive Team",
+        "email": "support@isi-archive.tn"
+      },
+      "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    },
+    "servers": [
+      {
+        "url": "http://localhost:5001",
+        "description": "Serveur de développement"
+      },
+      {
+        "url": "https://api.isi-archive.tn",
+        "description": "Serveur de production"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+      "schemas": {
+        "Error": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string",
+              "description": "Type d'erreur"
+            },
+            "message": {
+              "type": "string",
+              "description": "Message d'erreur détaillé"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Horodatage de l'erreur"
+            }
+          }
+        },
+        "HealthCheck": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "OK",
+              "description": "Statut de l'API"
+            },
+            "message": {
+              "type": "string",
+              "example": "ISI Archive API is running",
+              "description": "Message de statut"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Horodatage de la vérification"
+            },
+            "environment": {
+              "type": "string",
+              "example": "development",
+              "description": "Environnement d'exécution"
+            }
+          }
+        },
+        "ApiInfo": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "example": "ISI Archive API",
+              "description": "Nom de l'API"
+            },
+            "version": {
+              "type": "string",
+              "example": "1.0.0",
+              "description": "Version de l'API"
+            },
+            "description": {
+              "type": "string",
+              "description": "Description de l'API"
+            },
+            "endpoints": {
+              "type": "object",
+              "description": "Liste des endpoints disponibles"
+            }
+          }
+        },
+        "Document": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "titre": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "categorie": {
+              "type": "string",
+              "enum": [
+                "cours",
+                "td",
+                "tp",
+                "examen",
+                "correction",
+                "pfe"
+              ]
+            },
+            "nomFichier": {
+              "type": "string"
+            },
+            "tailleFichier": {
+              "type": "string"
+            },
+            "typeMime": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "uploader": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "prenom": {
+                  "type": "string"
+                },
+                "nom": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                }
+              }
+            },
+            "matiere": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "nom": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tags": [
+      {
+        "name": "Health",
+        "description": "Endpoints de vérification de santé de l'API"
+      },
+      {
+        "name": "Info",
+        "description": "Informations générales sur l'API"
+      },
+      {
+        "name": "Auth",
+        "description": "Authentification et autorisation"
+      },
+      {
+        "name": "Users",
+        "description": "Gestion des utilisateurs"
+      },
+      {
+        "name": "Documents",
+        "description": "Gestion des documents académiques"
+      },
+      {
+        "name": "Filieres",
+        "description": "Gestion des filières"
+      },
+      {
+        "name": "Matieres",
+        "description": "Gestion des matières"
+      },
+      {
+        "name": "Academic Structure",
+        "description": "Endpoints de gestion de la structure académique (niveaux, filières, matières)"
+      },
+      {
+        "name": "Authentication",
+        "description": "Endpoints d'authentification et de gestion de session"
+      }
+    ],
+    "paths": {
+      "/api/academic/niveaux": {
+        "get": {
+          "summary": "Obtenir tous les niveaux",
+          "description": "Récupère la liste de tous les niveaux académiques avec leurs filières et semestres",
+          "tags": [
+            "Academic Structure"
+          ],
+          "responses": {
+            "200": {
+              "description": "Niveaux récupérés avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "nom": {
+                              "type": "string",
+                              "example": "L2"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "licence",
+                                "master",
+                                "ingenieur"
+                              ]
+                            },
+                            "ordre": {
+                              "type": "integer"
+                            },
+                            "filieres": {
+                              "type": "array"
+                            },
+                            "semestres": {
+                              "type": "array"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/academic/filieres": {
+        "get": {
+          "summary": "Obtenir toutes les filières",
+          "description": "Récupère la liste des filières avec filtrage optionnel par niveau",
+          "tags": [
+            "Academic Structure"
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "niveauId",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "Filtrer par niveau"
+            },
+            {
+              "in": "query",
+              "name": "includeDeleted",
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "Inclure les filières supprimées (Admin uniquement)"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Filières récupérées avec succès"
+            }
+          }
+        },
+        "post": {
+          "summary": "Créer une nouvelle filière",
+          "description": "Crée une nouvelle filière (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "nom",
+                    "code",
+                    "niveauId"
+                  ],
+                  "properties": {
+                    "nom": {
+                      "type": "string",
+                      "example": "Informatique et Réseaux"
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "L2-IRS"
+                    },
+                    "niveauId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Filière créée avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "/api/academic/filieres/{id}": {
+        "put": {
+          "summary": "Mettre à jour une filière",
+          "description": "Met à jour les informations d'une filière (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nom": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "niveauId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Filière mise à jour avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Filière non trouvée"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Supprimer une filière",
+          "description": "Supprime une filière (suppression douce) (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Filière supprimée avec succès"
+            },
+            "400": {
+              "description": "Impossible de supprimer (utilisateurs actifs)"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Filière non trouvée"
+            }
+          }
+        }
+      },
+      "/api/academic/matieres": {
+        "get": {
+          "summary": "Obtenir toutes les matières",
+          "description": "Récupère la liste des matières avec filtrage optionnel",
+          "tags": [
+            "Academic Structure"
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "filiereId",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "Filtrer par filière"
+            },
+            {
+              "in": "query",
+              "name": "semestreId",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "Filtrer par semestre"
+            },
+            {
+              "in": "query",
+              "name": "includeDeleted",
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "Inclure les matières supprimées (Admin uniquement)"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Matières récupérées avec succès"
+            }
+          }
+        },
+        "post": {
+          "summary": "Créer une nouvelle matière",
+          "description": "Crée une nouvelle matière (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "nom",
+                    "code",
+                    "filiereId",
+                    "semestreId"
+                  ],
+                  "properties": {
+                    "nom": {
+                      "type": "string",
+                      "example": "Algorithmique et Structures de Données"
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "ALGO"
+                    },
+                    "filiereId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "semestreId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Matière créée avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "/api/academic/matieres/{id}": {
+        "put": {
+          "summary": "Mettre à jour une matière",
+          "description": "Met à jour les informations d'une matière (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nom": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "filiereId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "semestreId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Matière mise à jour avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Matière non trouvée"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Supprimer une matière",
+          "description": "Supprime une matière (suppression douce) (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Matière supprimée avec succès"
+            },
+            "400": {
+              "description": "Impossible de supprimer (documents existants)"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Matière non trouvée"
+            }
+          }
+        }
+      },
+      "/api/academic/professeurs/{id}/matieres": {
+        "get": {
+          "summary": "Obtenir les matières d'un professeur",
+          "description": "Récupère la liste des matières assignées à un professeur",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du professeur"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Matières du professeur récupérées avec succès"
+            },
+            "400": {
+              "description": "L'utilisateur n'est pas un professeur"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "404": {
+              "description": "Professeur non trouvé"
+            }
+          }
+        },
+        "post": {
+          "summary": "Assigner une matière à un professeur",
+          "description": "Assigne une matière à un professeur (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du professeur"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "matiereId"
+                  ],
+                  "properties": {
+                    "matiereId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Matière assignée avec succès"
+            },
+            "400": {
+              "description": "Assignation déjà existante ou données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Professeur ou matière non trouvé"
+            }
+          }
+        }
+      },
+      "/api/academic/professeurs/{id}/matieres/{matiereId}": {
+        "delete": {
+          "summary": "Retirer une matière d'un professeur",
+          "description": "Retire l'assignation d'une matière à un professeur (Admin uniquement)",
+          "tags": [
+            "Academic Structure"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du professeur"
+            },
+            {
+              "in": "path",
+              "name": "matiereId",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID de la matière"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Assignation supprimée avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Assignation non trouvée"
+            }
+          }
+        }
+      },
+      "/api/auth/login": {
+        "post": {
+          "summary": "Connexion utilisateur",
+          "description": "Authentifie un utilisateur avec email et mot de passe",
+          "tags": [
+            "Authentication"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "email",
+                    "password"
+                  ],
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "example": "admin@isi.tn"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "admin123"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Connexion réussie",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                        "example": true
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Connexion réussie"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "$ref": "#/components/schemas/User"
+                          },
+                          "accessToken": {
+                            "type": "string"
+                          },
+                          "refreshToken": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Identifiants invalides"
+            },
+            "429": {
+              "description": "Trop de tentatives de connexion"
+            }
+          }
+        }
+      },
+      "/api/auth/refresh": {
+        "post": {
+          "summary": "Rafraîchir le token d'accès",
+          "description": "Génère un nouveau token d'accès à partir du token de rafraîchissement",
+          "tags": [
+            "Authentication"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "refreshToken"
+                  ],
+                  "properties": {
+                    "refreshToken": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Token rafraîchi avec succès"
+            },
+            "401": {
+              "description": "Token de rafraîchissement invalide"
+            }
+          }
+        }
+      },
+      "/api/auth/logout": {
+        "post": {
+          "summary": "Déconnexion utilisateur",
+          "description": "Déconnecte l'utilisateur et invalide les tokens",
+          "tags": [
+            "Authentication"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Déconnexion réussie"
+            },
+            "401": {
+              "description": "Non authentifié"
+            }
+          }
+        }
+      },
+      "/api/auth/logout-all": {
+        "post": {
+          "summary": "Déconnexion de tous les appareils",
+          "description": "Déconnecte l'utilisateur de tous les appareils",
+          "tags": [
+            "Authentication"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Déconnexion de tous les appareils réussie"
+            },
+            "401": {
+              "description": "Non authentifié"
+            }
+          }
+        }
+      },
+      "/api/auth/profile": {
+        "get": {
+          "summary": "Obtenir le profil utilisateur",
+          "description": "Récupère les informations du profil de l'utilisateur connecté",
+          "tags": [
+            "Authentication"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Profil récupéré avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "$ref": "#/components/schemas/User"
+                          },
+                          "session": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Non authentifié"
+            }
+          }
+        },
+        "put": {
+          "summary": "Mettre à jour le profil utilisateur",
+          "description": "Met à jour les informations de base du profil utilisateur",
+          "tags": [
+            "Authentication"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prenom": {
+                      "type": "string",
+                      "example": "Mohamed"
+                    },
+                    "nom": {
+                      "type": "string",
+                      "example": "Ben Ali"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Profil mis à jour avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            }
+          }
+        }
+      },
+      "/api/auth/change-password": {
+        "post": {
+          "summary": "Changer le mot de passe",
+          "description": "Change le mot de passe de l'utilisateur connecté",
+          "tags": [
+            "Authentication"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "currentPassword",
+                    "newPassword"
+                  ],
+                  "properties": {
+                    "currentPassword": {
+                      "type": "string"
+                    },
+                    "newPassword": {
+                      "type": "string",
+                      "minLength": 8
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Mot de passe changé avec succès"
+            },
+            "400": {
+              "description": "Mot de passe actuel incorrect ou nouveau mot de passe faible"
+            },
+            "401": {
+              "description": "Non authentifié"
+            }
+          }
+        }
+      },
+      "/api/auth/check": {
+        "get": {
+          "summary": "Vérifier l'authentification",
+          "description": "Vérifie si l'utilisateur est authentifié et sa session est valide",
+          "tags": [
+            "Authentication"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Utilisateur authentifié"
+            },
+            "401": {
+              "description": "Non authentifié ou session expirée"
+            }
+          }
+        }
+      },
+      "/api/documents": {
+        "get": {
+          "summary": "Récupérer la liste des documents",
+          "description": "Récupère les documents avec filtrage et pagination selon les permissions utilisateur",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              },
+              "description": "Numéro de page"
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 20
+              },
+              "description": "Nombre d'éléments par page"
+            },
+            {
+              "in": "query",
+              "name": "matiereId",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "Filtrer par matière"
+            },
+            {
+              "in": "query",
+              "name": "categorie",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "cours",
+                  "td",
+                  "tp",
+                  "examen",
+                  "correction",
+                  "pfe"
+                ]
+              },
+              "description": "Filtrer par catégorie"
+            },
+            {
+              "in": "query",
+              "name": "search",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Recherche dans le titre et la description"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Documents récupérés avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Document"
+                        }
+                      },
+                      "pagination": {
+                        "type": "object",
+                        "properties": {
+                          "page": {
+                            "type": "integer"
+                          },
+                          "limit": {
+                            "type": "integer"
+                          },
+                          "total": {
+                            "type": "integer"
+                          },
+                          "pages": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Non authentifié"
+            }
+          }
+        },
+        "post": {
+          "summary": "Télécharger un nouveau document",
+          "description": "Télécharge un nouveau document (Professeur/Admin uniquement)",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "document",
+                    "titre",
+                    "categorie",
+                    "niveau",
+                    "filiere",
+                    "semestre",
+                    "matiere"
+                  ],
+                  "properties": {
+                    "document": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "Fichier document (PDF, DOC, DOCX, PPT, PPTX)"
+                    },
+                    "titre": {
+                      "type": "string",
+                      "description": "Titre du document"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Description du document"
+                    },
+                    "categorie": {
+                      "type": "string",
+                      "enum": [
+                        "cours",
+                        "td",
+                        "tp",
+                        "examen",
+                        "correction"
+                      ],
+                      "description": "Catégorie du document"
+                    },
+                    "matiereId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "ID de la matière"
+                    },
+                    "niveau": {
+                      "type": "string",
+                      "description": "Niveau pour l'organisation des fichiers"
+                    },
+                    "filiere": {
+                      "type": "string",
+                      "description": "Filière pour l'organisation des fichiers"
+                    },
+                    "semestre": {
+                      "type": "string",
+                      "description": "Semestre pour l'organisation des fichiers"
+                    },
+                    "matiere": {
+                      "type": "string",
+                      "description": "Matière pour l'organisation des fichiers"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Document téléchargé avec succès"
+            },
+            "400": {
+              "description": "Données invalides ou fichier manquant"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "/api/documents/pfe": {
+        "post": {
+          "summary": "Télécharger un document PFE",
+          "description": "Télécharge un nouveau document PFE (Admin uniquement)",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "document",
+                    "titre",
+                    "anneeDiplome",
+                    "filiereDiplome",
+                    "titreProjet",
+                    "niveau",
+                    "filiere",
+                    "semestre"
+                  ],
+                  "properties": {
+                    "document": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "Fichier document PFE"
+                    },
+                    "titre": {
+                      "type": "string",
+                      "description": "Titre du document"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Description du document"
+                    },
+                    "anneeDiplome": {
+                      "type": "integer",
+                      "description": "Année de diplôme"
+                    },
+                    "filiereDiplome": {
+                      "type": "string",
+                      "description": "Filière de diplôme"
+                    },
+                    "titreProjet": {
+                      "type": "string",
+                      "description": "Titre du projet PFE"
+                    },
+                    "resume": {
+                      "type": "string",
+                      "description": "Résumé du projet"
+                    },
+                    "motsCles": {
+                      "type": "string",
+                      "description": "Mots-clés séparés par des virgules"
+                    },
+                    "niveau": {
+                      "type": "string",
+                      "description": "Niveau pour l'organisation des fichiers"
+                    },
+                    "filiere": {
+                      "type": "string",
+                      "description": "Filière pour l'organisation des fichiers"
+                    },
+                    "semestre": {
+                      "type": "string",
+                      "description": "Semestre pour l'organisation des fichiers"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Document PFE téléchargé avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes (Admin uniquement)"
+            }
+          }
+        },
+        "get": {
+          "summary": "Récupérer les documents PFE",
+          "description": "Récupère la liste des documents PFE (accessible aux étudiants en semestre terminal)",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 20
+              }
+            },
+            {
+              "in": "query",
+              "name": "search",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Recherche dans le titre et la description"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Documents PFE récupérés avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Accès réservé aux étudiants en semestre terminal"
+            }
+          }
+        }
+      },
+      "/api/documents/{id}": {
+        "get": {
+          "summary": "Récupérer un document par ID",
+          "description": "Récupère les détails d'un document spécifique",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Document récupéré avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Accès non autorisé"
+            },
+            "404": {
+              "description": "Document non trouvé"
+            }
+          }
+        },
+        "put": {
+          "summary": "Mettre à jour un document",
+          "description": "Met à jour les métadonnées d'un document (propriétaire ou admin)",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "titre": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "categorie": {
+                      "type": "string",
+                      "enum": [
+                        "cours",
+                        "td",
+                        "tp",
+                        "examen",
+                        "correction",
+                        "pfe"
+                      ]
+                    },
+                    "matiereId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Document mis à jour avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Document non trouvé"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Supprimer un document",
+          "description": "Supprime un document (soft delete - propriétaire ou admin)",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Document supprimé avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Document non trouvé"
+            }
+          }
+        }
+      },
+      "/api/documents/{id}/download": {
+        "get": {
+          "summary": "Télécharger un document",
+          "description": "Télécharge le fichier d'un document",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Fichier téléchargé avec succès",
+              "content": {
+                "application/octet-stream": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Accès non autorisé"
+            },
+            "404": {
+              "description": "Document ou fichier non trouvé"
+            }
+          }
+        }
+      },
+      "/api/documents/professor/{id}": {
+        "get": {
+          "summary": "Récupérer les documents d'un professeur",
+          "description": "Récupère tous les documents téléchargés par un professeur spécifique",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du professeur"
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 20
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Documents du professeur récupérés avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "/api/documents/{id}/comments": {
+        "get": {
+          "summary": "Récupérer les commentaires d'un document",
+          "description": "Récupère la liste des commentaires pour un document spécifique",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du document"
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 20
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Commentaires récupérés avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Accès non autorisé au document"
+            },
+            "404": {
+              "description": "Document non trouvé"
+            }
+          }
+        },
+        "post": {
+          "summary": "Créer un commentaire",
+          "description": "Ajoute un nouveau commentaire à un document",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du document"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "contenu"
+                  ],
+                  "properties": {
+                    "contenu": {
+                      "type": "string",
+                      "description": "Contenu du commentaire"
+                    },
+                    "parentId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "ID du commentaire parent (pour les réponses)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Commentaire créé avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Accès non autorisé au document"
+            },
+            "404": {
+              "description": "Document non trouvé"
+            }
+          }
+        }
+      },
+      "/api/comments/{id}": {
+        "put": {
+          "summary": "Mettre à jour un commentaire",
+          "description": "Met à jour le contenu d'un commentaire (propriétaire ou admin)",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du commentaire"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "contenu"
+                  ],
+                  "properties": {
+                    "contenu": {
+                      "type": "string",
+                      "description": "Nouveau contenu du commentaire"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Commentaire mis à jour avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Commentaire non trouvé"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Supprimer un commentaire",
+          "description": "Supprime un commentaire et ses réponses (propriétaire ou admin)",
+          "tags": [
+            "Documents"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID du commentaire"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Commentaire supprimé avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Commentaire non trouvé"
+            }
+          }
+        }
+      },
+      "/api/users": {
+        "post": {
+          "summary": "Créer un nouvel utilisateur",
+          "description": "Crée un nouvel utilisateur (Admin uniquement)",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "email",
+                    "password",
+                    "prenom",
+                    "nom",
+                    "role"
+                  ],
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "example": "etudiant@isi.tn"
+                    },
+                    "password": {
+                      "type": "string",
+                      "minLength": 8,
+                      "example": "MotDePasse123!"
+                    },
+                    "prenom": {
+                      "type": "string",
+                      "example": "Ahmed"
+                    },
+                    "nom": {
+                      "type": "string",
+                      "example": "Ben Salem"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "etudiant",
+                        "professeur",
+                        "admin"
+                      ],
+                      "example": "etudiant"
+                    },
+                    "filiereId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Requis pour les étudiants"
+                    },
+                    "niveauId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Requis pour les étudiants"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Utilisateur créé avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        },
+        "get": {
+          "summary": "Obtenir la liste des utilisateurs",
+          "description": "Récupère la liste des utilisateurs avec pagination et filtres (Admin uniquement)",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 1
+              },
+              "description": "Numéro de page"
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 10
+              },
+              "description": "Nombre d'éléments par page"
+            },
+            {
+              "in": "query",
+              "name": "search",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Recherche par email, prénom ou nom"
+            },
+            {
+              "in": "query",
+              "name": "role",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "etudiant",
+                  "professeur",
+                  "admin"
+                ]
+              },
+              "description": "Filtrer par rôle"
+            },
+            {
+              "in": "query",
+              "name": "isActive",
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "Filtrer par statut actif"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Liste des utilisateurs récupérée avec succès"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "/api/users/stats": {
+        "get": {
+          "summary": "Obtenir les statistiques des utilisateurs",
+          "description": "Récupère les statistiques des utilisateurs (Admin uniquement)",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Statistiques récupérées avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "stats": {
+                            "type": "object",
+                            "properties": {
+                              "totalUsers": {
+                                "type": "integer"
+                              },
+                              "activeUsers": {
+                                "type": "integer"
+                              },
+                              "inactiveUsers": {
+                                "type": "integer"
+                              },
+                              "roleDistribution": {
+                                "type": "object"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "/api/users/bulk-update": {
+        "put": {
+          "summary": "Mise à jour en lot des utilisateurs",
+          "description": "Met à jour plusieurs utilisateurs en une seule opération (Admin uniquement)",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "userIds",
+                    "updateData"
+                  ],
+                  "properties": {
+                    "userIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "updateData": {
+                      "type": "object",
+                      "properties": {
+                        "isActive": {
+                          "type": "boolean"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "etudiant",
+                            "professeur",
+                            "admin"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Utilisateurs mis à jour avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            }
+          }
+        }
+      },
+      "/api/users/{id}": {
+        "get": {
+          "summary": "Obtenir un utilisateur par ID",
+          "description": "Récupère les informations d'un utilisateur spécifique",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID de l'utilisateur"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Utilisateur récupéré avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        },
+        "put": {
+          "summary": "Mettre à jour un utilisateur",
+          "description": "Met à jour les informations d'un utilisateur",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID de l'utilisateur"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prenom": {
+                      "type": "string"
+                    },
+                    "nom": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "etudiant",
+                        "professeur",
+                        "admin"
+                      ]
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "filiereId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "niveauId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Utilisateur mis à jour avec succès"
+            },
+            "400": {
+              "description": "Données invalides"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Supprimer un utilisateur",
+          "description": "Supprime un utilisateur (Admin uniquement)",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID de l'utilisateur"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Utilisateur supprimé avec succès"
+            },
+            "400": {
+              "description": "Impossible de supprimer l'utilisateur"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        }
+      },
+      "/api/users/{id}/toggle-status": {
+        "patch": {
+          "summary": "Basculer le statut actif d'un utilisateur",
+          "description": "Active ou désactive un utilisateur (Admin uniquement)",
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "ID de l'utilisateur"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Statut de l'utilisateur modifié avec succès"
+            },
+            "400": {
+              "description": "Impossible de modifier le statut"
+            },
+            "401": {
+              "description": "Non authentifié"
+            },
+            "403": {
+              "description": "Permissions insuffisantes"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        }
+      }
+    }
+  }

@@ -1,0 +1,62 @@
+{"level":"info","message":"📚 Swagger documentation available at: http://localhost:5001/api/docs","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"✅ Database connected successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"Redis Client Connected","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"Redis Client Ready","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"Successfully connected to Redis","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"✅ Redis connected successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"Email service initialized","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"✅ Email service initialized","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"🚀 ISI Archive API started successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"📍 Server running on port 5001","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"🌍 Environment: development","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"📚 API Documentation: http://localhost:5001/api/docs","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"💚 Health Check: http://localhost:5001/api/health","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"📋 API Info: http://localhost:5001/api","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"🔧 Development mode - detailed logging enabled","service":"isi-archive-api","timestamp":"2025-06-03 18:01:55"}
+{"level":"info","message":"SIGTERM received, starting graceful shutdown...","service":"isi-archive-api","timestamp":"2025-06-03 18:10:47"}
+{"level":"info","message":"HTTP server closed","service":"isi-archive-api","timestamp":"2025-06-03 18:10:47"}
+{"level":"info","message":"📚 Swagger documentation available at: http://localhost:5001/api/docs","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"✅ Database connected successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"Redis Client Connected","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"Redis Client Ready","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"Successfully connected to Redis","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"✅ Redis connected successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"Email service initialized","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"✅ Email service initialized","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"🚀 ISI Archive API started successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"📍 Server running on port 5001","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"🌍 Environment: development","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"📚 API Documentation: http://localhost:5001/api/docs","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"💚 Health Check: http://localhost:5001/api/health","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"📋 API Info: http://localhost:5001/api","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"info","message":"🔧 Development mode - detailed logging enabled","service":"isi-archive-api","timestamp":"2025-06-03 18:11:58"}
+{"level":"warn","message":"Failed login attempt for user: contact@khalilkhalef.com","service":"isi-archive-api","timestamp":"2025-06-03 18:19:27"}
+{"level":"error","message":"Login error: Email ou mot de passe incorrect","service":"isi-archive-api","stack":"Error: Email ou mot de passe incorrect\n    at Function.login (/app/src/services/authService.ts:44:13)\n    at async login (/app/src/controllers/authController.ts:15:22)","timestamp":"2025-06-03 18:19:27"}
+{"level":"info","message":"Successful login for user: admin@isi.tn","service":"isi-archive-api","timestamp":"2025-06-03 18:19:31"}
+{"level":"info","message":"Audit log created: LOGIN by user 12105b6c-0e8b-415f-b04b-48245dd9a206","service":"isi-archive-api","timestamp":"2025-06-03 18:19:31"}
+{"level":"info","message":"Audit log created: PAGE_ACCESS by user 12105b6c-0e8b-415f-b04b-48245dd9a206","service":"isi-archive-api","timestamp":"2025-06-03 18:19:34"}
+{"level":"info","message":"SIGTERM received, starting graceful shutdown...","service":"isi-archive-api","timestamp":"2025-06-03 18:24:16"}
+{"level":"info","message":"HTTP server closed","service":"isi-archive-api","timestamp":"2025-06-03 18:24:16"}
+{"level":"info","message":"📚 Swagger documentation available at: http://localhost:5001/api/docs","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"✅ Database connected successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"Redis Client Connected","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"Redis Client Ready","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"Successfully connected to Redis","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"✅ Redis connected successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"Email service initialized","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"✅ Email service initialized","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"🚀 ISI Archive API started successfully","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"📍 Server running on port 5001","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"🌍 Environment: development","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"📚 API Documentation: http://localhost:5001/api/docs","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"💚 Health Check: http://localhost:5001/api/health","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"📋 API Info: http://localhost:5001/api","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"info","message":"🔧 Development mode - detailed logging enabled","service":"isi-archive-api","timestamp":"2025-06-03 18:33:15"}
+{"level":"warn","message":"Failed token refresh attempt: Token de rafraîchissement invalide","service":"isi-archive-api","stack":"Error: Token de rafraîchissement invalide\n    at Function.refreshToken (/app/src/services/authService.ts:194:15)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async refreshToken (/app/src/controllers/authController.ts:125:22)","timestamp":"2025-06-03 18:34:18"}
+{"level":"error","message":"Token refresh error: Token de rafraîchissement invalide","service":"isi-archive-api","stack":"Error: Token de rafraîchissement invalide\n    at Function.refreshToken (/app/src/services/authService.ts:235:13)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async refreshToken (/app/src/controllers/authController.ts:125:22)","timestamp":"2025-06-03 18:34:18"}
+{"level":"warn","message":"Failed token refresh attempt: Token de rafraîchissement invalide","service":"isi-archive-api","stack":"Error: Token de rafraîchissement invalide\n    at Function.refreshToken (/app/src/services/authService.ts:194:15)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async refreshToken (/app/src/controllers/authController.ts:125:22)","timestamp":"2025-06-03 18:34:18"}
+{"level":"error","message":"Token refresh error: Token de rafraîchissement invalide","service":"isi-archive-api","stack":"Error: Token de rafraîchissement invalide\n    at Function.refreshToken (/app/src/services/authService.ts:235:13)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async refreshToken (/app/src/controllers/authController.ts:125:22)","timestamp":"2025-06-03 18:34:18"}
+{"level":"info","message":"Successful login for user: admin@isi.tn","service":"isi-archive-api","timestamp":"2025-06-03 18:34:24"}
+{"level":"info","message":"Audit log created: LOGIN by user a19c3c2d-bb3c-4c67-9d08-36822681b46f","service":"isi-archive-api","timestamp":"2025-06-03 18:34:24"}
+{"level":"info","message":"SIGTERM received, starting graceful shutdown...","service":"isi-archive-api","timestamp":"2025-06-03 18:35:52"}
+{"level":"info","message":"HTTP server closed","service":"isi-archive-api","timestamp":"2025-06-03 18:35:52"}

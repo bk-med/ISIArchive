@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const documentController_1 = require("../controllers/documentController");
+const commentController_1 = require("../controllers/commentController");
+const auth_1 = require("../middleware/auth");
+const validation_1 = require("../middleware/validation");
+const upload_1 = require("../middleware/upload");
+const router = (0, express_1.Router)();
+router.get('/', auth_1.authenticate, (0, validation_1.validateQuery)(validation_1.schemas.documentQuery), documentController_1.DocumentController.getDocuments);
+router.post('/', auth_1.authenticate, auth_1.requireProfessorOrAdmin, upload_1.uploadDocument, upload_1.organizeUploadedFile, upload_1.handleUploadError, (0, validation_1.validate)(validation_1.schemas.createDocument), documentController_1.DocumentController.uploadDocument);
+router.post('/pfe', auth_1.authenticate, auth_1.requireAdmin, upload_1.uploadDocument, upload_1.organizeUploadedFile, upload_1.handleUploadError, (0, validation_1.validate)(validation_1.schemas.createPFEDocument), documentController_1.DocumentController.uploadPFEDocument);
+router.get('/pfe', auth_1.authenticate, (0, validation_1.validateQuery)(validation_1.schemas.documentQuery), documentController_1.DocumentController.getPFEDocuments);
+router.get('/:id', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), documentController_1.DocumentController.getDocumentById);
+router.put('/:id', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), (0, validation_1.validate)(validation_1.schemas.updateDocument), documentController_1.DocumentController.updateDocument);
+router.delete('/:id', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), documentController_1.DocumentController.deleteDocument);
+router.get('/:id/download', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), documentController_1.DocumentController.downloadDocument);
+router.get('/professor/:id', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), (0, validation_1.validateQuery)(validation_1.schemas.documentQuery), documentController_1.DocumentController.getDocumentsByProfessor);
+router.get('/:id/comments', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), (0, validation_1.validateQuery)(validation_1.schemas.commentQuery), commentController_1.CommentController.getDocumentComments);
+router.post('/:id/comments', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), (0, validation_1.validate)(validation_1.schemas.createComment), commentController_1.CommentController.createComment);
+router.put('/comments/:id', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), (0, validation_1.validate)(validation_1.schemas.updateComment), commentController_1.CommentController.updateComment);
+router.delete('/comments/:id', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), commentController_1.CommentController.deleteComment);
+router.post('/:parentDocumentId/correction', auth_1.authenticate, auth_1.requireProfessorOrAdmin, upload_1.uploadDocument, upload_1.handleUploadError, documentController_1.DocumentController.uploadCorrection);
+router.get('/comments/:id/can-reply', auth_1.authenticate, (0, validation_1.validateParams)(validation_1.schemas.uuidParam), commentController_1.CommentController.checkReplyPermission);
+exports.default = router;
+//# sourceMappingURL=documentRoutes.js.map

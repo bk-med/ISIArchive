@@ -1,0 +1,283 @@
+// ISI Archive - Prisma Database Schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-1.1.x", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Énumérations
+enum UserRole {
+  etudiant
+  professeur
+  admin
+}
+
+enum NiveauType {
+  licence
+  master
+  ingenieur
+}
+
+enum DocumentCategorie {
+  cours
+  td
+  tp
+  examen
+  pfe
+}
+
+enum ProfesseurRole {
+  cours
+  td
+  tp
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  DOCUMENT_VIEW
+  DOCUMENT_DOWNLOAD
+  DOCUMENT_UPLOAD
+  DOCUMENT_UPDATE
+  DOCUMENT_DELETE
+  DOCUMENT_RESTORE
+  COMMENT_CREATE
+  COMMENT_UPDATE
+  COMMENT_DELETE
+  USER_CREATE
+  USER_UPDATE
+  USER_DELETE
+  FILIERE_CREATE
+  FILIERE_UPDATE
+  FILIERE_DELETE
+  FILIERE_RESTORE
+  MATIERE_CREATE
+  MATIERE_UPDATE
+  MATIERE_DELETE
+  MATIERE_RESTORE
+  PAGE_ACCESS
+  PROFILE_UPDATE
+  PASSWORD_CHANGE
+  DASHBOARD_VIEW
+}
+
+// Modèles principaux
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  prenom     String
+  nom        String
+  role       UserRole
+  isActive   Boolean  @default(true) @map("is_active")
+  filiereId  String?  @map("filiere_id")
+  niveauId   String?  @map("niveau_id")
+  // Password reset fields
+  resetToken String?  @map("reset_token")
+  resetTokenExpiry DateTime? @map("reset_token_expiry")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  filiere              Filiere?              @relation(fields: [filiereId], references: [id])
+  niveau               Niveau?               @relation(fields: [niveauId], references: [id])
+  documents            Document[]            @relation("DocumentUploader")
+  deletedDocuments     Document[]            @relation("DocumentDeleter")
+  commentaires         Commentaire[]
+  professeurMatieres   ProfesseurMatiere[]
+  auditLogs            AuditLog[]
+
+  @@map("users")
+}
+
+model Niveau {
+  id    String     @id @default(uuid())
+  nom   String     @unique
+  type  NiveauType
+  ordre Int        @unique
+
+  // Relations
+  filieres  Filiere[]
+  semestres Semestre[]
+  users     User[]
+
+  @@map("niveaux")
+}
+
+model Filiere {
+  id        String    @id @default(uuid())
+  nom       String
+  code      String    @unique
+  niveauId  String    @map("niveau_id")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  niveau   Niveau    @relation(fields: [niveauId], references: [id])
+  matieres Matiere[]
+  users    User[]
+
+  @@map("filieres")
+}
+
+model Semestre {
+  id       String @id @default(uuid())
+  nom      String
+  niveauId String @map("niveau_id")
+  ordre    Int
+
+  // Relations
+  niveau   Niveau    @relation(fields: [niveauId], references: [id])
+  matieres Matiere[]
+
+  @@unique([niveauId, ordre])
+  @@map("semestres")
+}
+
+model Matiere {
+  id         String    @id @default(uuid())
+  nom        String
+  code       String
+  filiereId  String    @map("filiere_id")
+  semestreId String    @map("semestre_id")
+  isDeleted  Boolean   @default(false) @map("is_deleted")
+  deletedAt  DateTime? @map("deleted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  filiere            Filiere             @relation(fields: [filiereId], references: [id])
+  semestre           Semestre            @relation(fields: [semestreId], references: [id])
+  documents          Document[]          // Keep for backward compatibility
+  documentMatieres   DocumentMatiere[]   // New many-to-many relationship
+  professeurMatieres ProfesseurMatiere[]
+
+  @@unique([code, filiereId])
+  @@map("matieres")
+}
+
+model ProfesseurMatiere {
+  id           String         @id @default(uuid())
+  professeurId String         @map("professeur_id")
+  matiereId    String         @map("matiere_id")
+  role         ProfesseurRole
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  professeur User    @relation(fields: [professeurId], references: [id])
+  matiere    Matiere @relation(fields: [matiereId], references: [id])
+
+  @@unique([matiereId, role])
+  @@map("professeur_matieres")
+}
+
+model Document {
+  id             String            @id @default(uuid())
+  titre          String
+  description    String?
+  cheminFichier  String            @map("chemin_fichier")
+  nomFichier     String            @map("nom_fichier")
+  tailleFichier  BigInt            @map("taille_fichier")
+  typeMime       String            @map("type_mime")
+  categorie      DocumentCategorie
+  matiereId      String?           @map("matiere_id") // NULL pour les PFE - DEPRECATED: use documentMatieres instead
+  telchargePar   String            @map("telecharge_par")
+  correctionId   String?           @unique @map("correction_id") // ID du document parent pour les corrections
+  // Statistics fields
+  downloadCount  Int               @default(0) @map("download_count")
+  viewCount      Int               @default(0) @map("view_count")
+  isDeleted      Boolean           @default(false) @map("is_deleted")
+  deletedAt      DateTime?         @map("deleted_at")
+  deletedBy      String?           @map("deleted_by") // ID de l'utilisateur qui a supprimé
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  matiere         Matiere?          @relation(fields: [matiereId], references: [id])
+  uploader        User              @relation("DocumentUploader", fields: [telchargePar], references: [id])
+  deleter         User?             @relation("DocumentDeleter", fields: [deletedBy], references: [id])
+  commentaires    Commentaire[]
+  documentPFE     DocumentPFE?
+  documentMatieres DocumentMatiere[] // New many-to-many relationship
+  // Correction relationship
+  correctionPour  Document?         @relation("DocumentCorrection", fields: [correctionId], references: [id])
+  correction      Document?         @relation("DocumentCorrection")
+
+  @@map("documents")
+}
+
+model DocumentPFE {
+  id             String   @id @default(uuid())
+  documentId     String   @unique @map("document_id")
+  anneeDiplome   Int      @map("annee_diplome")
+  filiereDiplome String   @map("filiere_diplome")
+  titreProjet    String   @map("titre_projet")
+  resume         String?
+  motsCles       String[] @map("mots_cles")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("documents_pfe")
+}
+
+model Commentaire {
+  id         String    @id @default(uuid())
+  contenu    String
+  documentId String    @map("document_id")
+  userId     String    @map("user_id")
+  parentId   String?   @map("parent_id") // Pour les réponses
+  isDeleted  Boolean   @default(false) @map("is_deleted")
+  deletedAt  DateTime? @map("deleted_at")
+  deletedBy  String?   @map("deleted_by") // ID de l'utilisateur qui a supprimé
+  isEdited   Boolean   @default(false) @map("is_edited")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  document Document      @relation(fields: [documentId], references: [id])
+  user     User          @relation(fields: [userId], references: [id])
+  parent   Commentaire?  @relation("CommentaireReplies", fields: [parentId], references: [id])
+  replies  Commentaire[] @relation("CommentaireReplies")
+
+  @@map("commentaires")
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  userId      String?     @map("user_id") // NULL pour les actions système
+  action      AuditAction
+  resource    String?     // Type de ressource (document, user, filiere, etc.)
+  resourceId  String?     @map("resource_id") // ID de la ressource
+  details     Json?       // Détails supplémentaires de l'action
+  ipAddress   String?     @map("ip_address")
+  userAgent   String?     @map("user_agent")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// New model for many-to-many relationship between documents and matieres
+model DocumentMatiere {
+  id         String   @id @default(uuid())
+  documentId String   @map("document_id")
+  matiereId  String   @map("matiere_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  matiere  Matiere  @relation(fields: [matiereId], references: [id])
+
+  @@unique([documentId, matiereId])
+  @@map("document_matieres")
+} 
